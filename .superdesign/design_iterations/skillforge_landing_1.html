@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skill Forge - Learn anything, faster</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="skillforge_theme.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sans) !important;
+            background: var(--background) !important;
+            color: var(--foreground) !important;
+            line-height: 1.6 !important;
+            letter-spacing: var(--tracking-normal) !important;
+        }
+
+        .hero-gradient {
+            background: var(--gradient-hero);
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: var(--primary-foreground);
+            border: none;
+            border-radius: var(--radius);
+            padding: 1rem 2rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s ease-out;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .input-field {
+            background: var(--input);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem 1.5rem;
+            font-size: 1.1rem;
+            color: var(--foreground);
+            transition: all 0.3s ease-out;
+            outline: none;
+        }
+
+        .input-field:focus {
+            border-color: var(--ring);
+            box-shadow: 0 0 0 3px rgba(112, 89, 41, 0.1);
+            transform: scale(1.02);
+        }
+
+        .feature-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.25s ease-out;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .nav-link {
+            color: var(--muted-foreground);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease-out;
+        }
+
+        .nav-link:hover {
+            color: var(--foreground);
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--foreground);
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .fade-in-delay-1 { animation-delay: 0.15s; }
+        .fade-in-delay-2 { animation-delay: 0.3s; }
+        .fade-in-delay-3 { animation-delay: 0.45s; }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ripple::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.4s ease-out, height 0.4s ease-out;
+        }
+
+        .ripple:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.1rem, 2vw, 1.3rem);
+            color: var(--muted-foreground);
+            margin-bottom: 3rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .input-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .input-field {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="w-full px-6 py-4 bg-white/80 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="logo">Skill Forge</div>
+            <div class="flex items-center space-x-8">
+                <a href="#" class="nav-link">About</a>
+                <a href="#" class="nav-link">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-gradient min-h-screen flex items-center justify-center px-6">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="hero-title fade-in">Learn anything, faster.</h1>
+            <p class="hero-subtitle fade-in fade-in-delay-1">
+                Type what you want to learn and get a custom roadmap with resources, visuals, and videos.
+            </p>
+            
+            <!-- Input Section -->
+            <div class="input-container flex items-center justify-center gap-4 max-w-2xl mx-auto mb-16 fade-in fade-in-delay-2">
+                <input 
+                    type="text" 
+                    placeholder="What do you want to learn?" 
+                    class="input-field flex-1 min-w-0"
+                    id="learningInput"
+                >
+                <button class="btn-primary ripple" onclick="startLearning()">
+                    Start Learning
+                </button>
+            </div>
+
+            <!-- Feature Cards -->
+            <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto fade-in fade-in-delay-3">
+                <div class="feature-card">
+                    <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
+                        <i data-lucide="map" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Custom Paths</h3>
+                    <p class="text-gray-600">Personalized learning roadmaps tailored to your goals and current skill level.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                        <i data-lucide="graduation-cap" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Expert Content</h3>
+                    <p class="text-gray-600">Curated resources from industry experts and top educational platforms.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-green-500 to-teal-600 rounded-full flex items-center justify-center">
+                        <i data-lucide="eye" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Visual Learning</h3>
+                    <p class="text-gray-600">Interactive diagrams, videos, and visual aids to accelerate understanding.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Handle learning input
+        function startLearning() {
+            const input = document.getElementById('learningInput');
+            const topic = input.value.trim();
+            
+            if (topic) {
+                // Add loading state
+                const button = event.target;
+                const originalText = button.textContent;
+                button.textContent = 'Creating roadmap...';
+                button.disabled = true;
+                
+                // Simulate navigation to dashboard (replace with actual navigation)
+                setTimeout(() => {
+                    // In a real app, you'd navigate to the dashboard with the topic
+                    window.location.href = `skillforge_dashboard_1.html?topic=${encodeURIComponent(topic)}`;
+                }, 1500);
+            } else {
+                // Add shake animation for empty input
+                input.style.animation = 'shake 0.3s ease-out';
+                setTimeout(() => {
+                    input.style.animation = '';
+                }, 300);
+            }
+        }
+
+        // Handle Enter key in input
+        document.getElementById('learningInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                startLearning();
+            }
+        });
+
+        // Add shake animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-3px); }
+                75% { transform: translateX(3px); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Smooth scroll behavior
+        document.documentElement.style.scrollBehavior = 'smooth';
+    </script>
+</body>
+</html>

@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Dashboard - Skill Forge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="skillforge_dark_theme.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sans) !important;
+            background: var(--background) !important;
+            color: var(--foreground) !important;
+            line-height: 1.6 !important;
+            letter-spacing: var(--tracking-normal) !important;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--foreground);
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-link {
+            color: var(--muted-foreground);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease-out;
+        }
+
+        .nav-link:hover {
+            color: var(--foreground);
+        }
+
+        .nav-bar {
+            background: rgba(15, 15, 23, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-card {
+            background: var(--gradient-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 2rem;
+            backdrop-filter: blur(8px);
+        }
+
+        .concept-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.25s ease-out;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+        }
+
+        .concept-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--accent);
+            background: linear-gradient(135deg, var(--card), var(--muted));
+        }
+
+        .video-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: all 0.3s ease-out;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+        }
+
+        .video-card:hover {
+            transform: scale(1.03);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--accent);
+        }
+
+        .resource-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            text-decoration: none;
+            color: var(--foreground);
+            transition: all 0.2s ease-out;
+            margin-bottom: 0.5rem;
+            backdrop-filter: blur(8px);
+        }
+
+        .resource-link:hover {
+            transform: translateX(8px);
+            background: var(--accent);
+            color: var(--accent-foreground);
+            border-color: var(--accent);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .motivational-card {
+            background: var(--gradient-accent);
+            color: var(--accent-foreground);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            text-align: center;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .motivational-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        .roadmap-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .roadmap-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+
+        .roadmap-step-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--muted);
+            border: 3px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            transition: all 0.5s ease-out;
+            position: relative;
+            z-index: 2;
+            backdrop-filter: blur(8px);
+        }
+
+        .roadmap-step.active .roadmap-step-icon {
+            background: var(--gradient-primary);
+            border-color: var(--accent);
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(101, 85, 255, 0.4);
+        }
+
+        .roadmap-step.completed .roadmap-step-icon {
+            background: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(101, 85, 255, 0.3);
+        }
+
+        .roadmap-connector {
+            position: absolute;
+            top: 40px;
+            left: 50%;
+            right: -50%;
+            height: 3px;
+            background: var(--border);
+            z-index: 1;
+        }
+
+        .roadmap-step.completed .roadmap-connector {
+            background: var(--gradient-primary);
+            box-shadow: 0 0 10px rgba(101, 85, 255, 0.3);
+        }
+
+        .roadmap-step:last-child .roadmap-connector {
+            display: none;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--foreground);
+        }
+
+        .topic-header {
+            background: var(--gradient-hero);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            margin-bottom: 2rem;
+            text-align: center;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(8px);
+        }
+
+        .topic-title {
+            font-size: 2rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .concept-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 1rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-primary);
+            box-shadow: var(--shadow-md);
+        }
+
+        .video-thumbnail {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .video-thumbnail::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .video-card:hover .video-thumbnail::after {
+            opacity: 1;
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.4s ease-out forwards;
+        }
+
+        .fade-in-delay-1 { animation-delay: 0.1s; }
+        .fade-in-delay-2 { animation-delay: 0.2s; }
+        .fade-in-delay-3 { animation-delay: 0.3s; }
+        .fade-in-delay-4 { animation-delay: 0.4s; }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .glass-effect {
+            background: rgba(18, 18, 27, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .roadmap-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .roadmap-connector {
+                display: none;
+            }
+            
+            .concept-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav-bar w-full px-6 py-4 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="logo">Skill Forge</div>
+            <div class="flex items-center space-x-8">
+                <a href="skillforge_landing_1.html" class="nav-link">← Back to Home</a>
+                <a href="#" class="nav-link">About</a>
+                <a href="#" class="nav-link">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 py-8">
+        <!-- Topic Header -->
+        <div class="topic-header fade-in">
+            <h1 class="topic-title" id="topicTitle">Learning: JavaScript</h1>
+            <p class="text-gray-400 mt-2">Your personalized learning roadmap</p>
+        </div>
+
+        <!-- Roadmap Timeline -->
+        <div class="section-card fade-in fade-in-delay-1">
+            <h2 class="section-title">Learning Path</h2>
+            <div class="roadmap-container">
+                <div class="roadmap-step completed">
+                    <div class="roadmap-step-icon">
+                        <i data-lucide="play-circle" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <div class="roadmap-connector"></div>
+                    <h3 class="font-semibold text-white">Beginner</h3>
+                    <p class="text-sm text-gray-400 mt-1">Fundamentals & Syntax</p>
+                </div>
+                <div class="roadmap-step active">
+                    <div class="roadmap-step-icon">
+                        <i data-lucide="zap" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <div class="roadmap-connector"></div>
+                    <h3 class="font-semibold text-white">Intermediate</h3>
+                    <p class="text-sm text-gray-400 mt-1">DOM & Async Programming</p>
+                </div>
+                <div class="roadmap-step">
+                    <div class="roadmap-step-icon">
+                        <i data-lucide="trophy" class="w-8 h-8 text-gray-500"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-300">Advanced</h3>
+                    <p class="text-sm text-gray-400 mt-1">Frameworks & Architecture</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Concepts -->
+        <div class="section-card fade-in fade-in-delay-2">
+            <h2 class="section-title">Key Concepts</h2>
+            <div class="concept-grid grid md:grid-cols-3 gap-6">
+                <div class="concept-card">
+                    <div class="concept-icon">
+                        <i data-lucide="code" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <h3 class="font-semibold mb-2 text-white">Variables & Functions</h3>
+                    <p class="text-sm text-gray-400">Learn how to store data and create reusable code blocks</p>
+                </div>
+                <div class="concept-card">
+                    <div class="concept-icon">
+                        <i data-lucide="git-branch" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <h3 class="font-semibold mb-2 text-white">Control Flow</h3>
+                    <p class="text-sm text-gray-400">Master loops, conditionals, and program logic</p>
+                </div>
+                <div class="concept-card">
+                    <div class="concept-icon">
+                        <i data-lucide="database" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <h3 class="font-semibold mb-2 text-white">Objects & Arrays</h3>
+                    <p class="text-sm text-gray-400">Work with complex data structures and collections</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommended Videos -->
+        <div class="section-card fade-in fade-in-delay-3">
+            <h2 class="section-title">Recommended Videos</h2>
+            <div class="video-grid grid md:grid-cols-2 gap-6">
+                <div class="video-card">
+                    <div class="video-thumbnail">
+                        <img src="https://img.youtube.com/vi/PkZNo7MFNFg/maxresdefault.jpg" alt="JavaScript Fundamentals" class="w-full h-48 object-cover">
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-semibold mb-2 text-white">JavaScript Fundamentals Course</h3>
+                        <p class="text-sm text-gray-400 mb-2">Learn the basics of JavaScript programming</p>
+                        <div class="flex items-center text-xs text-gray-500">
+                            <i data-lucide="clock" class="w-4 h-4 mr-1"></i>
+                            <span>2h 30m</span>
+                            <span class="mx-2">•</span>
+                            <span>freeCodeCamp</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="video-card">
+                    <div class="video-thumbnail">
+                        <img src="https://img.youtube.com/vi/hdI2bqOjy3c/maxresdefault.jpg" alt="JavaScript DOM Manipulation" class="w-full h-48 object-cover">
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-semibold mb-2 text-white">DOM Manipulation Crash Course</h3>
+                        <p class="text-sm text-gray-400 mb-2">Master DOM manipulation and event handling</p>
+                        <div class="flex items-center text-xs text-gray-500">
+                            <i data-lucide="clock" class="w-4 h-4 mr-1"></i>
+                            <span>1h 45m</span>
+                            <span class="mx-2">•</span>
+                            <span>Traversy Media</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resource Links -->
+        <div class="section-card fade-in fade-in-delay-4">
+            <h2 class="section-title">Additional Resources</h2>
+            <div class="space-y-2">
+                <a href="#" class="resource-link">
+                    <i data-lucide="book-open" class="w-5 h-5 mr-3 text-blue-400"></i>
+                    <div>
+                        <div class="font-medium text-white">MDN JavaScript Guide</div>
+                        <div class="text-sm text-gray-400">Comprehensive documentation and tutorials</div>
+                    </div>
+                </a>
+                <a href="#" class="resource-link">
+                    <i data-lucide="code-2" class="w-5 h-5 mr-3 text-green-400"></i>
+                    <div>
+                        <div class="font-medium text-white">JavaScript.info</div>
+                        <div class="text-sm text-gray-400">Modern JavaScript tutorial with examples</div>
+                    </div>
+                </a>
+                <a href="#" class="resource-link">
+                    <i data-lucide="play" class="w-5 h-5 mr-3 text-purple-400"></i>
+                    <div>
+                        <div class="font-medium text-white">Codecademy JavaScript Course</div>
+                        <div class="text-sm text-gray-400">Interactive coding exercises and projects</div>
+                    </div>
+                </a>
+                <a href="#" class="resource-link">
+                    <i data-lucide="github" class="w-5 h-5 mr-3 text-gray-400"></i>
+                    <div>
+                        <div class="font-medium text-white">JavaScript30 Challenge</div>
+                        <div class="text-sm text-gray-400">30 projects in 30 days to practice your skills</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Motivational Card -->
+        <div class="motivational-card fade-in fade-in-delay-4">
+            <div class="relative z-10">
+                <i data-lucide="lightbulb" class="w-12 h-12 mx-auto mb-4 text-yellow-300"></i>
+                <h3 class="text-xl font-semibold mb-2">Keep Going!</h3>
+                <p class="text-lg opacity-90">
+                    "The expert in anything was once a beginner. Every pro was once an amateur. Every icon was once an unknown."
+                </p>
+                <p class="text-sm mt-2 opacity-75">- Robin Sharma</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Get topic from URL parameters
+        function getTopicFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const topic = urlParams.get('topic');
+            if (topic) {
+                document.getElementById('topicTitle').textContent = `Learning: ${topic}`;
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            getTopicFromURL();
+            
+            // Add click handlers for interactive elements
+            document.querySelectorAll('.concept-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    // Add selection effect
+                    this.style.transform = 'scale(1.02) translateY(-4px)';
+                    this.style.borderColor = 'var(--accent)';
+                    this.style.boxShadow = 'var(--shadow-2xl)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                        this.style.borderColor = '';
+                        this.style.boxShadow = '';
+                    }, 200);
+                });
+            });
+
+            document.querySelectorAll('.video-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    // In a real app, this would open the video
+                    console.log('Opening video...');
+                });
+            });
+
+            // Animate roadmap steps on scroll
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animation = 'fadeInUp 0.6s ease-out forwards';
+                    }
+                });
+            });
+
+            document.querySelectorAll('.fade-in').forEach(el => {
+                observer.observe(el);
+            });
+        });
+
+        // Smooth scroll behavior
+        document.documentElement.style.scrollBehavior = 'smooth';
+    </script>
+</body>
+</html>
