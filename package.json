@@ -6,7 +6,19 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:roadmap": "node scripts/test-roadmap-generation.js",
+    "test:roadmap:watch": "node scripts/test-roadmap-generation.js --watch",
+    "test:roadmap:quick": "jest tests/integration/roadmap-generation.test.ts --testNamePattern=\"Query Format Handling|Edge Cases\"",
+    "test:images": "node scripts/test-intelligent-image-search.js",
+    "test:images:unit": "jest tests/unit/intelligent-image-search.test.ts --verbose",
+
+    "test:skill-tree": "jest tests/unit/skill-tree-interactions.test.ts --verbose",
+    "test:api-errors": "jest tests/unit/api-key-error-handling.test.ts --verbose",
+    "test:lazy-loading": "jest tests/unit/lazy-loading-performance.test.ts --verbose"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
@@ -17,6 +29,7 @@
     "autoprefixer": "^10.4.21",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "framer-motion": "^12.23.12",
     "lucide-react": "^0.539.0",
     "mermaid": "^11.9.0",
@@ -24,18 +37,25 @@
     "postcss": "^8.5.6",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "react-hook-form": "^7.62.0",
     "recharts": "^3.1.2",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^3.4.17",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@testing-library/jest-dom": "^6.7.0",
+    "@testing-library/react": "^16.3.0",
+    "@types/jest": "^30.0.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.4.6",
+    "jest": "^30.0.5",
+    "jest-environment-jsdom": "^30.0.5",
     "typescript": "^5"
   }
 }

@@ -11,6 +11,9 @@ interface VideoPlayerProps {
 export function VideoPlayer({ videoId, title }: VideoPlayerProps) {
   // Extract video ID from various YouTube URL formats
   const getVideoId = (url: string) => {
+    if (!url || typeof url !== 'string') {
+      return '';
+    }
     const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
     const match = url.match(regex);
     return match ? match[1] : url;
@@ -64,6 +67,9 @@ interface VideoThumbnailProps {
 export function VideoThumbnail({ videoId, title, description, duration, onPlay }: VideoThumbnailProps) {
   // Extract video ID from various YouTube URL formats
   const getVideoId = (url: string) => {
+    if (!url || typeof url !== 'string') {
+      return '';
+    }
     const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
     const match = url.match(regex);
     return match ? match[1] : url;

@@ -8,20 +8,29 @@ alwaysApply: true
 - Every time you choose to apply a rule(s), explicitly state the rule{s} in the output. You can abbreviate the rule description to a single word or phrase
 - Do not make any changes, until you have 95% confidence that you know what to build. Ask me follow up questions until you have that confidence.
 
+## Configuration Management
+
+- **USE CONFIG VARIABLES**: When applicable, use config variables instead of hardcoded values for values that change often, are in a lot of places, or would mess up code if one changed and the other did not.
+- **SINGLE SOURCE OF TRUTH**: Create centralized configuration sections at the top of files for important constants.
+- **AUTO-CALCULATION**: Use derived values that automatically calculate from base configuration variables.
+- **CLEAR DOCUMENTATION**: Comment configuration variables with examples of how changing them affects the system.
+
 # Project structure
 
 - All the files go inside /LearnToLearn
 
 # Tech Stack
 
-You are helping me build a Next.js web app called "Skill Forge". 
-It generates structured learning roadmaps when a user types a topic. 
+You are helping me build a Next.js web app called "Skill Forge".
+It generates structured learning roadmaps when a user types a topic.
 Stack details are below. Please scaffold the project with these tools:
 
 # Design
+
 - Use design found in .superdesign
 
 # Frontend
+
 - Framework: Next.js (App Router)
 - Styling: TailwindCSS + shadcn/ui for prebuilt components
 - Animations: Framer Motion
@@ -29,19 +38,23 @@ Stack details are below. Please scaffold the project with these tools:
 - Page design: Minimal, card-based, rounded corners, gradient backgrounds
 
 # Backend
+
 - Use Next.js API routes for server-side logic
 - Call OpenAI API for generating notes, roadmaps, and study prompts
 - Call YouTube API to fetch 3–5 relevant videos per topic
 - Call Tavily/Google Search API to fetch 3–5 articles/links
 
 # Database
+
 - Supabase (Postgres) for storing user data, saved roadmaps, and progress
 - Supabase Auth for login if needed (not MVP priority)
 
 # Deployment
+
 - Deploy on Vercel
 
 Please:
+
 - Generate the Next.js project structure with Tailwind + shadcn configured
 - Add placeholder API routes for OpenAI, YouTube, and Tavily calls
 

@@ -1,5 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
+/* Import enhanced design system */
+@import '../styles/design-system.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -34,6 +37,12 @@
     --sidebar-accent-foreground: 222.2 84% 4.9%;
     --sidebar-border: 214.3 31.8% 91.4%;
     --sidebar-ring: 222.2 84% 4.9%;
+    
+    /* Topic-specific customization variables */
+    --topic-font: "Inter", sans-serif;
+    --topic-accent: hsl(217, 91%, 60%);
+    --topic-icon: "Target";
+    --topic-background: "none";
   }
 
   * {
@@ -124,5 +133,56 @@
   /* Text balance */
   .text-balance {
     text-wrap: balance;
+  }
+
+  /* Gray Theme Utilities */
+  .btn-gray-primary {
+    @apply bg-gray-700 text-white border-none rounded-lg px-6 py-3 font-medium transition-all duration-200 shadow-md hover:bg-gray-600 hover:shadow-lg active:scale-95;
+  }
+
+  .btn-gray-secondary {
+    @apply bg-gray-100 text-gray-700 border border-gray-300 rounded-lg px-6 py-3 font-medium transition-all duration-200 hover:bg-gray-200 hover:shadow-sm;
+  }
+
+  .btn-gray-outline {
+    @apply bg-transparent text-gray-700 border border-gray-300 rounded-lg px-6 py-3 font-medium transition-all duration-200 hover:bg-gray-50 hover:border-gray-400;
+  }
+
+  .btn-gray-ghost {
+    @apply bg-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-800 rounded-lg px-6 py-3 font-medium transition-all duration-200;
+  }
+
+  /* Topic-specific customization classes */
+  .topic-font {
+    font-family: var(--topic-font);
+  }
+
+  .topic-accent {
+    color: var(--topic-accent);
+  }
+
+  .topic-accent-bg {
+    background-color: var(--topic-accent);
+  }
+
+  .topic-accent-border {
+    border-color: var(--topic-accent);
+  }
+
+  .topic-accent-ring {
+    --tw-ring-color: var(--topic-accent);
+  }
+
+  /* Background patterns */
+  .bg-subtle-grid {
+    background-image: 
+      linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  .bg-minimal-dots {
+    background-image: radial-gradient(circle, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
   }
 }

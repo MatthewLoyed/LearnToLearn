@@ -1,0 +1,44 @@
+# Cursor Rules Configuration
+
+# This file tells Cursor which rules to apply to this project
+
+# React Development Rules
+
+Follow the comprehensive React rules defined in .cursor/rules/REACT_RULES.md
+
+# Always Apply React Rules
+
+- Use functional components with hooks
+- Implement proper TypeScript typing
+- Follow accessibility guidelines (a11y)
+- Use semantic HTML elements
+- Apply proper error handling patterns
+- Follow Standard.js code style rules
+- Use controlled components for forms
+- Implement performance optimizations where appropriate
+
+# General Development Rules
+
+Apply the general coding standards from .cursor/rules/general-rules.mdc
+
+# Project Management Rules
+
+Use the project management guidelines from .cursor/rules/project-management/
+
+# Core Instructions
+
+- Always follow TypeScript best practices
+- Use functional components with hooks
+- Implement proper error handling
+- Write clean, readable code with comments
+- Follow the 1:5 theory to practice ratio for learning
+- Avoid learning as procrastination - focus on real application
+
+# When working on React components:
+
+- Use proper naming conventions (PascalCase for components)
+- Implement accessibility features
+- Use TypeScript for type safety
+- Follow the component structure guidelines
+- Apply performance optimization techniques
+- Use proper state management patterns
