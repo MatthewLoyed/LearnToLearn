@@ -38,6 +38,34 @@
     --sidebar-border: 214.3 31.8% 91.4%;
     --sidebar-ring: 222.2 84% 4.9%;
     
+    /* Primary Theme Variables - Single Source of Truth */
+--primary-bg: rgb(55 65 81); /* gray-700 */
+--primary-text: rgb(255 255 255); /* white */
+--primary-hover: rgb(75 85 99); /* gray-600 */
+--primary-border: transparent;
+--primary-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+--primary-hover-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+/* Button Theme Variables - Single Source of Truth */
+--btn-primary-bg: var(--primary-bg);
+--btn-primary-text: var(--primary-text);
+--btn-primary-hover: var(--primary-hover);
+--btn-primary-border: var(--primary-border);
+--btn-primary-shadow: var(--primary-shadow);
+--btn-primary-hover-shadow: var(--primary-hover-shadow);
+
+--btn-secondary-bg: rgb(255 255 255); /* white */
+--btn-secondary-text: rgb(55 65 81); /* gray-700 */
+--btn-secondary-hover: rgb(249 250 251); /* gray-50 */
+--btn-secondary-border: rgb(209 213 219); /* gray-300 */
+--btn-secondary-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+
+--btn-radius: 0.5rem; /* rounded-lg */
+--btn-padding-x: 1.5rem; /* px-6 */
+--btn-padding-y: 0.75rem; /* py-3 */
+--btn-font-weight: 500; /* font-medium */
+--btn-transition: all 0.2s ease-in-out;
+    
     /* Topic-specific customization variables */
     --topic-font: "Inter", sans-serif;
     --topic-accent: hsl(217, 91%, 60%);
@@ -135,13 +163,65 @@
     text-wrap: balance;
   }
 
-  /* Gray Theme Utilities */
+  /* Button Theme Utilities - Using CSS Variables for Consistency */
+  .primary {
+  background-color: var(--primary-bg);
+  color: var(--primary-text);
+  border: 1px solid var(--primary-border);
+  box-shadow: var(--primary-shadow);
+}
+
+.primary:hover {
+  background-color: var(--primary-hover);
+  box-shadow: var(--primary-hover-shadow);
+}
+
+.btn-primary {
+  background-color: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border: 1px solid var(--btn-primary-border);
+  border-radius: var(--btn-radius);
+  padding: var(--btn-padding-y) var(--btn-padding-x);
+  font-weight: var(--btn-font-weight);
+  transition: var(--btn-transition);
+  box-shadow: var(--btn-primary-shadow);
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background-color: var(--btn-primary-hover);
+  box-shadow: var(--btn-primary-hover-shadow);
+  transform: scale(1.02);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+  .btn-secondary {
+    background-color: var(--btn-secondary-bg);
+    color: var(--btn-secondary-text);
+    border: 1px solid var(--btn-secondary-border);
+    border-radius: var(--btn-radius);
+    padding: var(--btn-padding-y) var(--btn-padding-x);
+    font-weight: var(--btn-font-weight);
+    transition: var(--btn-transition);
+    box-shadow: var(--btn-secondary-shadow);
+    cursor: pointer;
+  }
+  
+  .btn-secondary:hover {
+    background-color: var(--btn-secondary-hover);
+    box-shadow: var(--btn-secondary-shadow);
+  }
+
+  /* Legacy classes for backward compatibility */
   .btn-gray-primary {
-    @apply bg-gray-700 text-white border-none rounded-lg px-6 py-3 font-medium transition-all duration-200 shadow-md hover:bg-gray-600 hover:shadow-lg active:scale-95;
+    @apply btn-primary;
   }
 
   .btn-gray-secondary {
-    @apply bg-gray-100 text-gray-700 border border-gray-300 rounded-lg px-6 py-3 font-medium transition-all duration-200 hover:bg-gray-200 hover:shadow-sm;
+    @apply btn-secondary;
   }
 
   .btn-gray-outline {

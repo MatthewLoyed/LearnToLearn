@@ -344,7 +344,7 @@ export function MilestoneSection({
               <div className="border-t pt-6">
                 <button
                   onClick={handleMilestoneComplete}
-                  className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 px-4 rounded-lg font-medium hover:from-green-600 hover:to-emerald-700 transition-all duration-200 flex items-center justify-center space-x-2"
+                  className="w-full btn-primary flex items-center justify-center space-x-2"
                 >
                   <CheckCircle className="h-5 w-5" />
                   <span>Complete Milestone</span>

@@ -131,7 +131,7 @@ export default function SkillLibraryPage() {
               </p>
             </div>
             <Link href="/">
-              <Button className="btn-gray-primary flex items-center gap-2">
+              <Button className="btn-primary flex items-center gap-2">
                 <Plus className="h-4 w-4" />
                 Add New Skill
               </Button>
@@ -170,7 +170,7 @@ export default function SkillLibraryPage() {
             </p>
             {!searchQuery && (
               <Link href="/">
-                <Button className="btn-gray-primary flex items-center gap-2">
+                <Button className="btn-primary flex items-center gap-2">
                   <Plus className="h-4 w-4" />
                   Start Learning
                 </Button>
@@ -255,7 +255,7 @@ export default function SkillLibraryPage() {
 
                     {/* Continue Learning Button */}
                     <Link href={buildSkillUrl(skill)} className="w-full">
-                      <Button className="w-full flex items-center gap-2">
+                      <Button className="w-full btn-primary flex items-center gap-2">
                         <BookOpen className="h-4 w-4" />
                         Continue Learning
                       </Button>

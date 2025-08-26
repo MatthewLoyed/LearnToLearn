@@ -173,7 +173,7 @@ export function MilestonePage({
                 </p>
                 <Button 
                   size="lg"
-                  className="bg-green-600 hover:bg-green-700"
+                  className="btn-primary"
                   onClick={onMilestoneComplete}
                 >
                   Mark Milestone Complete
@@ -204,7 +204,7 @@ export function MilestonePage({
                 </p>
                                  <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4">
                    {prevMilestone && (
-                     <Button className="btn-gray-outline" asChild>
+                     <Button className="btn-primary" asChild>
                        <Link href={buildUrlWithParams(`/skill/${encodeURIComponent(roadmap.topic)}/milestone/${prevMilestone.id}`)}>
                          <ChevronLeft className="h-4 w-4 mr-2" />
                          Previous Milestone
@@ -212,14 +212,14 @@ export function MilestonePage({
                      </Button>
                    )}
                    {nextMilestone ? (
-                     <Button className="btn-gray-primary" asChild>
+                     <Button className="btn-primary" asChild>
                        <Link href={buildUrlWithParams(`/skill/${encodeURIComponent(roadmap.topic)}/milestone/${nextMilestone.id}`)}>
                          Next Milestone
                          <ChevronRight className="h-4 w-4 ml-2" />
                        </Link>
                      </Button>
                    ) : (
-                     <Button className="btn-gray-primary" asChild>
+                     <Button className="btn-primary" asChild>
                        <Link href={buildUrlWithParams(`/skill/${encodeURIComponent(roadmap.topic)}`)}>
                          Back to Skill Overview
                        </Link>
@@ -239,7 +239,7 @@ export function MilestonePage({
          transition={{ delay: 0.6 }}
          className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0"
        >
-         <Button className="btn-gray-outline w-full sm:w-auto" asChild>
+         <Button className="btn-primary w-full sm:w-auto" asChild>
            <Link href={buildUrlWithParams(`/skill/${encodeURIComponent(roadmap.topic)}`)}>
              <ArrowLeft className="h-4 w-4 mr-2" />
              Back to Skill Overview
@@ -248,7 +248,7 @@ export function MilestonePage({
          
          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
            {prevMilestone && (
-             <Button className="btn-gray-outline" asChild>
+             <Button className="btn-primary" asChild>
                <Link href={buildUrlWithParams(`/skill/${encodeURIComponent(roadmap.topic)}/milestone/${prevMilestone.id}`)}>
                  <ChevronLeft className="h-4 w-4 mr-2" />
                  Previous
@@ -256,7 +256,7 @@ export function MilestonePage({
              </Button>
            )}
            {nextMilestone && (
-             <Button className="btn-gray-primary" asChild>
+             <Button className="btn-primary" asChild>
                <Link href={buildUrlWithParams(`/skill/${encodeURIComponent(roadmap.topic)}/milestone/${nextMilestone.id}`)}>
                  Next
                  <ChevronRight className="h-4 w-4 ml-2" />

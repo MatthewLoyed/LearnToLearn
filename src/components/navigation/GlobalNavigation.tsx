@@ -13,6 +13,8 @@ import { usePathname } from "next/navigation";
 export function GlobalNavigation() {
   const [isSkillMenuOpen, setIsSkillMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isNavVisible, setIsNavVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
   const pathname = usePathname();
   const { get_active_skills, get_practice_sessions } = use_progress();
 
@@ -38,6 +40,25 @@ export function GlobalNavigation() {
 
   const currentSkill = getCurrentSkill();
 
+  // Handle scroll-based navigation visibility
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // Show nav when scrolling up or at top, hide when scrolling down
+      if (currentScrollY < lastScrollY || currentScrollY < 100) {
+        setIsNavVisible(true);
+      } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setIsNavVisible(false);
+      }
+      
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
+
   // Close menus when clicking outside
   useEffect(() => {
     const handleClickOutside = () => {
@@ -50,44 +71,46 @@ export function GlobalNavigation() {
   }, []);
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm">
+    <nav className={`fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm transition-transform duration-300 h-20 ${
+      isNavVisible ? 'translate-y-0' : '-translate-y-full'
+    }`}>
       <div className="container mx-auto px-4 lg:px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">SF</span>
-            </div>
-            <span className="text-xl font-bold text-gray-900 hidden sm:block">
-              Skill Forge
-            </span>
+                     <Link href="/" className="flex items-center space-x-2">
+             <div className="w-8 h-8 primary rounded-lg flex items-center justify-center">
+               <span className="text-white font-bold text-sm">SF</span>
+             </div>
+                         <span className="text-2xl font-bold text-gray-900 hidden sm:block tracking-tight" style={{ fontFamily: "'Inter', 'Poppins', sans-serif" }}>
+               Skill Forge
+             </span>
           </Link>
 
           {/* Main Navigation - Desktop */}
           <div className="hidden md:flex items-center space-x-6">
             {/* Dashboard Button */}
-            <Button
-              className={isOnDashboard ? "btn-gray-primary" : "btn-gray-ghost"}
-              size="sm"
-              asChild
-            >
-              <Link href="/">
-                <Home className="h-4 w-4 mr-2" />
-                Dashboard
-              </Link>
-            </Button>
+                         <Button
+               className={isOnDashboard ? "btn-primary" : "bg-transparent text-gray-700 border border-transparent hover:bg-gray-50 hover:border-gray-200 rounded-lg px-6 py-3 font-medium transition-all duration-200"}
+               size="sm"
+               asChild
+             >
+               <Link href="/">
+                 <Home className="h-4 w-4 mr-2" />
+                 Dashboard
+               </Link>
+             </Button>
 
-            {/* Library Button */}
-            <Button
-              className={isOnLibrary ? "btn-gray-primary" : "btn-gray-ghost"}
-              size="sm"
-              asChild
-            >
-              <Link href="/library">
-                <BookOpen className="h-4 w-4 mr-2" />
-                Library
-              </Link>
-            </Button>
+             {/* Library Button */}
+             <Button
+               className={isOnLibrary ? "btn-primary" : "bg-transparent text-gray-700 border border-transparent hover:bg-gray-50 hover:border-gray-200 rounded-lg px-6 py-3 font-medium transition-all duration-200"}
+               size="sm"
+               asChild
+             >
+               <Link href="/library">
+                 <BookOpen className="h-4 w-4 mr-2" />
+                 Library
+               </Link>
+             </Button>
 
             {/* Current Skill Indicator */}
             {currentSkill && (
@@ -105,14 +128,14 @@ export function GlobalNavigation() {
             {/* Skills Dropdown */}
             {skillSummaries.length > 0 && (
               <div className="relative">
-                <Button
-                  className="btn-gray-ghost flex items-center space-x-1"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsSkillMenuOpen(!isSkillMenuOpen);
-                  }}
-                >
+                                 <Button
+                   className="bg-transparent text-gray-700 border border-transparent hover:bg-gray-50 hover:border-gray-200 rounded-lg px-6 py-3 font-medium transition-all duration-200 flex items-center space-x-1"
+                   size="sm"
+                   onClick={(e) => {
+                     e.stopPropagation();
+                     setIsSkillMenuOpen(!isSkillMenuOpen);
+                   }}
+                 >
                   <BookOpen className="h-4 w-4" />
                   <span>My Skills</span>
                   <ChevronDown className={`h-4 w-4 transition-transform ${isSkillMenuOpen ? 'rotate-180' : ''}`} />
@@ -178,39 +201,39 @@ export function GlobalNavigation() {
             )}
 
             {/* Discover Button */}
-            <Button
-              variant={isOnDiscover ? "default" : "ghost"}
-              size="sm"
-              asChild
-            >
-              <Link href="/discover">
-                <Search className="h-4 w-4 mr-2" />
-                Discover
-              </Link>
-            </Button>
+                         <Button
+               className={isOnDiscover ? "btn-primary" : "bg-transparent text-gray-700 border border-transparent hover:bg-gray-50 hover:border-gray-200 rounded-lg px-6 py-3 font-medium transition-all duration-200"}
+               size="sm"
+               asChild
+             >
+               <Link href="/discover">
+                 <Search className="h-4 w-4 mr-2" />
+                 Discover
+               </Link>
+             </Button>
           </div>
 
           {/* Right Side Actions */}
           <div className="flex items-center space-x-3">
             {/* Notifications */}
-            <Button className="btn-gray-ghost hidden md:flex" size="sm">
-              <Bell className="h-4 w-4" />
-            </Button>
+                         <Button className="bg-transparent text-gray-700 border border-transparent hover:bg-gray-50 hover:border-gray-200 rounded-lg px-6 py-3 font-medium transition-all duration-200 hidden md:flex" size="sm">
+               <Bell className="h-4 w-4" />
+             </Button>
 
-            {/* Theme Toggle */}
-            <ThemeToggle />
+             {/* Theme Toggle */}
+             <ThemeToggle />
 
-            {/* User Menu */}
-            <Button className="btn-gray-ghost hidden md:flex" size="sm">
-              <User className="h-4 w-4" />
-            </Button>
+             {/* User Menu */}
+             <Button className="bg-transparent text-gray-700 border border-transparent hover:bg-gray-50 hover:border-gray-200 rounded-lg px-6 py-3 font-medium transition-all duration-200 hidden md:flex" size="sm">
+               <User className="h-4 w-4" />
+             </Button>
 
-            {/* Mobile Menu Button */}
-            <Button
-              className="btn-gray-ghost md:hidden"
-              size="sm"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
+             {/* Mobile Menu Button */}
+             <Button
+               className="bg-transparent text-gray-700 border border-transparent hover:bg-gray-50 hover:border-gray-200 rounded-lg px-6 py-3 font-medium transition-all duration-200 md:hidden"
+               size="sm"
+               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+             >
               {isMobileMenuOpen ? (
                 <X className="h-5 w-5" />
               ) : (

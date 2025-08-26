@@ -136,7 +136,7 @@ export function MainDashboard() {
                     className="w-full"
                   />
                 </div>
-                <Button type="submit" className="btn-gray-primary">
+                <Button type="submit" className="btn-primary">
                   <Search className="h-4 w-4 mr-2" />
                   Start Learning
                 </Button>
@@ -160,21 +160,24 @@ export function MainDashboard() {
                 />
               </div>
               
-              {/* Status Indicators */}
+              {/* Search Options Status */}
               {(aiEnabled || maxTokensMode) && (
-                <div className="flex flex-wrap gap-2 pt-2">
-                  {aiEnabled && (
-                    <div className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                      <Sparkles className="h-3 w-3" />
-                      AI Enabled
-                    </div>
-                  )}
-                  {maxTokensMode && (
-                    <div className="flex items-center gap-1 px-2 py-1 bg-orange-100 text-orange-800 rounded-full text-xs">
-                      <ZapIcon className="h-3 w-3" />
-                      Max Mode
-                    </div>
-                  )}
+                <div className="flex items-center gap-3 pt-3 border-t border-gray-100">
+                  <span className="text-xs font-medium text-gray-500">Search Options:</span>
+                  <div className="flex gap-2">
+                    {aiEnabled && (
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 text-blue-700 rounded-md text-xs font-medium border border-blue-200">
+                        <Sparkles className="h-3 w-3" />
+                        AI Enhanced
+                      </div>
+                    )}
+                    {maxTokensMode && (
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 bg-orange-50 text-orange-700 rounded-md text-xs font-medium border border-orange-200">
+                        <ZapIcon className="h-3 w-3" />
+                        Extended Mode
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </form>
@@ -195,7 +198,7 @@ export function MainDashboard() {
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-gray-900">Your Active Skills</h2>
           <Link href="/discover">
-            <Button className="btn-gray-outline flex items-center">
+            <Button className="btn-primary flex items-center">
               <Plus className="h-4 w-4 mr-2" />
               Add New Skill
             </Button>
@@ -209,7 +212,7 @@ export function MainDashboard() {
               <h3 className="text-lg font-semibold text-gray-900 mb-2">No Active Skills</h3>
               <p className="text-gray-600 mb-4">Start your learning journey by adding your first skill</p>
               <Link href="/discover">
-                <Button className="btn-gray-primary">
+                <Button className="btn-primary">
                   <Plus className="h-4 w-4 mr-2" />
                   Discover Skills
                 </Button>
@@ -243,7 +246,7 @@ export function MainDashboard() {
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900">Saved Skills</h2>
             <Link href="/library">
-              <Button className="btn-gray-outline flex items-center">
+              <Button className="btn-primary flex items-center">
                 <BookOpen className="h-4 w-4 mr-2" />
                 View All
               </Button>
@@ -304,7 +307,7 @@ export function MainDashboard() {
 
                     {/* Continue Learning Button */}
                     <Link href={buildSkillUrl(skill)} className="w-full">
-                      <Button className="w-full flex items-center gap-2">
+                      <Button className="w-full btn-primary flex items-center gap-2">
                         <BookOpen className="h-4 w-4" />
                         Continue Learning
                       </Button>

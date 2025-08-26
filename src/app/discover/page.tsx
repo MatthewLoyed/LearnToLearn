@@ -272,7 +272,7 @@ export default function DiscoverPage() {
             {/* Category Filter */}
             <div className="flex flex-wrap gap-2">
               <Button
-                className={selectedCategory === null ? "btn-gray-primary" : "btn-gray-outline"}
+                className="btn-primary"
                 size="sm"
                 onClick={() => setSelectedCategory(null)}
               >
@@ -281,7 +281,7 @@ export default function DiscoverPage() {
               {skillCategories.map((category) => (
                 <Button
                   key={category.id}
-                  className={selectedCategory === category.id ? "btn-gray-primary" : "btn-gray-outline"}
+                  className="btn-primary"
                   size="sm"
                   onClick={() => setSelectedCategory(category.id)}
                 >
@@ -355,7 +355,7 @@ export default function DiscoverPage() {
                               <span className="text-sm font-medium">{skill.estimatedTime}</span>
                             </div>
 
-                            <Button className="btn-gray-primary w-full" asChild>
+                            <Button className="btn-primary w-full" asChild>
                               <Link href={`/skill/${skill.id}`}>
                                 <Plus className="h-4 w-4 mr-2" />
                                 Start Learning
@@ -382,7 +382,7 @@ export default function DiscoverPage() {
               <p className="text-gray-600 mb-6">
                 Try adjusting your search terms or browse all categories
               </p>
-              <Button className="btn-gray-outline" onClick={() => { setSearchQuery(""); setSelectedCategory(null); }}>
+              <Button className="btn-secondary" onClick={() => { setSearchQuery(""); setSelectedCategory(null); }}>
                 Clear Filters
               </Button>
             </motion.div>

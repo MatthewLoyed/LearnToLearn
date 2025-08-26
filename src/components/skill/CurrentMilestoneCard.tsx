@@ -132,7 +132,7 @@ export function CurrentMilestoneCard({
                   size="lg"
                   className={`px-8 py-3 ${
                     isActive 
-                      ? 'btn-gray-primary shadow-lg hover:shadow-xl' 
+                      ? 'btn-primary shadow-lg hover:shadow-xl' 
                       : 'bg-gray-400 text-white cursor-not-allowed'
                   }`}
                   onClick={() => isActive && onStartMilestone(milestone.id)}

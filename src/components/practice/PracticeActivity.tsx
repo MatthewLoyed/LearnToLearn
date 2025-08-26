@@ -171,7 +171,7 @@ export function PracticeActivity({
           {!isActive ? (
             <button
               onClick={startPractice}
-              className="w-full btn-gray-primary flex items-center justify-center space-x-2"
+              className="w-full btn-primary flex items-center justify-center space-x-2"
             >
               <Activity className="h-4 w-4" />
               <span>Start Practice</span>
@@ -181,14 +181,14 @@ export function PracticeActivity({
               <button
                 onClick={completeRep}
                 disabled={currentRep >= reps}
-                className="w-full bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                className="w-full btn-primary disabled:bg-gray-300 disabled:cursor-not-allowed"
               >
                 Complete Rep ({currentRep}/{reps})
               </button>
               {currentRep >= reps && currentSet < sets && (
                 <button
                   onClick={completeSet}
-                  className="w-full bg-purple-500 text-white py-2 px-4 rounded-lg hover:bg-purple-600 transition-colors"
+                  className="w-full btn-primary"
                 >
                   Complete Set ({currentSet + 1}/{sets})
                 </button>
@@ -196,7 +196,7 @@ export function PracticeActivity({
               {currentSet >= sets && (
                 <button
                   onClick={finishPractice}
-                  className="w-full bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors"
+                  className="w-full btn-primary"
                 >
                   Finish Practice
                 </button>
@@ -239,7 +239,7 @@ export function PracticeActivity({
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-purple-500 to-pink-600 text-white py-2 px-4 rounded-lg hover:from-purple-600 hover:to-pink-700 transition-all duration-200 flex items-center justify-center space-x-2"
+            className="w-full btn-primary flex items-center justify-center space-x-2"
           >
             <CheckCircle className="h-4 w-4" />
             <span>Complete Practice</span>

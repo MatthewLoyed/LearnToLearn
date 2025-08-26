@@ -92,15 +92,12 @@ export function CoreLearningSection({ milestone }: CoreLearningSectionProps) {
                   className="space-y-3"
                 >
                                                           <div className="bg-gray-50 rounded-lg p-3">
-                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-2 space-y-2 sm:space-y-0">
-                         <h4 className="font-medium text-gray-900 text-sm sm:text-base">{video.title}</h4>
-                         <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded self-start">
-                           {getContentSource(video).icon} {getContentSource(video).label}
-                         </span>
-                       </div>
-                     {video.description && (
-                       <p className="text-sm text-gray-600 mb-3">{video.description}</p>
-                     )}
+                                               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-2 space-y-2 sm:space-y-0">
+                          <h4 className="font-medium text-gray-900 text-sm sm:text-base">{video.title}</h4>
+                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded self-start">
+                            {getContentSource(video).icon} {getContentSource(video).label}
+                          </span>
+                        </div>
                      <div className="flex items-center justify-between text-xs text-gray-500">
                        {video.duration && (
                          <div className="flex items-center">
@@ -164,7 +161,7 @@ export function CoreLearningSection({ milestone }: CoreLearningSectionProps) {
                              <p className="text-xs text-gray-500 mb-3">Source: {article.source}</p>
                            )}
                          </div>
-                                                 <Button className="btn-gray-outline mt-3 sm:mt-0 sm:ml-4 w-full sm:w-auto" asChild size="sm">
+                                                 <Button className="btn-primary mt-3 sm:mt-0 sm:ml-4 w-full sm:w-auto" asChild size="sm">
                           <a 
                             href={article.url} 
                             target="_blank" 

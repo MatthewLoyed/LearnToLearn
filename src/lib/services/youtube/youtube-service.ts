@@ -13,24 +13,47 @@
  * QUALITY CONTROL SETTINGS:
  * Set ENABLE_QUALITY_FILTERING to false to disable all quality filtering
  * This will return all videos found without any quality scoring or filtering
+ * 
+ * TEMPORARILY DISABLED:
+ * YouTube API integration is currently disabled in favor of direct browser search.
+ * 
+ * TO RE-ENABLE YOUTUBE API:
+ * 1. Set ENABLE_YOUTUBE_API = true (line ~25)
+ * 2. Ensure YOUTUBE_API_KEY is configured in environment variables
+ * 3. The API will automatically start working again
+ * 
+ * CURRENT APPROACH:
+ * Using direct browser search with educational-focused queries for better results
+ * and no API limitations or rate limits.
  */
 
 // ============================================================================
-// QUALITY CONTROL CONFIGURATION
+// YOUTUBE API CONFIGURATION
 // ============================================================================
+
+// Set to true to enable YouTube Data API integration
+// Currently disabled in favor of direct browser search approach
+const ENABLE_YOUTUBE_API = false;
 
 // Set to false to disable all quality filtering and return all videos
 // TODO: Set to false to test without quality filtering
 const ENABLE_QUALITY_FILTERING = true;
 
 // Quality thresholds (only used if ENABLE_QUALITY_FILTERING is true)
-// OPTIMIZED: Lowered thresholds to ensure content availability
+// OPTIMIZED: Skill-level specific view count thresholds
 const QUALITY_CONFIG = {
-  minQualityScore: 15,        // Lowered from 30 to 15 for broader content access
-  minViewCount: 50,           // Lowered from 100 to 50 for more content
+  minQualityScore: 5,         // Lowered to 5 to ensure we get enough videos
+  minViewCount: 1000000,      // 1M+ for beginner content only
   maxAgeInDays: 365 * 10,     // Increased from 5 to 10 years for more content
   requireCaptions: false,     // Whether to require captions
   maxResults: 10              // Maximum results to return
+};
+
+// Test configuration for bypassing quality filters
+const TEST_CONFIG = {
+  minViewCount: 1000000,        // At least 1M+ views for testing
+  maxAgeInDays: 365 * 10,     // Up to 10 years old
+  maxResults: 10              // Get 10 videos
 };
 
 import { 
@@ -443,11 +466,6 @@ export function calculateChannelAuthorityScore(channel: YouTubeChannel | null, v
   
   let score = 0;
   
-  // Known educational channels get maximum authority
-  if (EDUCATIONAL_CHANNELS.includes(video.channelId as any)) {
-    return 100;
-  }
-  
   const subscriberCount = parseInt(channel.statistics?.subscriberCount || '0');
   const videoCount = parseInt(channel.statistics?.videoCount || '0');
   const channelViewCount = parseInt(channel.statistics?.viewCount || '0');
@@ -473,63 +491,78 @@ export function calculateChannelAuthorityScore(channel: YouTubeChannel | null, v
     else if (avgViewsPerVideo > 100) score += 5;
   }
   
-  // Educational indicators in channel description (0-20 points)
+  // Content quality indicators (0-20 points) - broader than just educational
   const description = channel.snippet?.description?.toLowerCase() || '';
-  const educationalKeywords = ['education', 'learning', 'tutorial', 'course', 'university', 'school', 'training', 'teacher', 'instructor'];
-  const keywordMatches = educationalKeywords.filter(keyword => description.includes(keyword)).length;
+  const qualityKeywords = ['tutorial', 'guide', 'how to', 'learn', 'explained', 'tips', 'tricks', 'demo', 'example'];
+  const keywordMatches = qualityKeywords.filter(keyword => description.includes(keyword)).length;
   score += Math.min(keywordMatches * 3, 20);
   
   return Math.min(score, 100);
 }
 
 /**
- * Create educational channel prioritization score
+ * Create content quality prioritization score with heavy "how to" bias
  */
 export function calculateEducationalPriorityScore(video: YouTubeVideo, channel: YouTubeChannel | null): number {
   let score = 0;
   
-  // Title analysis for educational content (0-30 points)
+  // Title analysis with heavy "how to" bias (0-40 points)
   const title = video.title.toLowerCase();
-  const educationalTitleKeywords = [
-    'tutorial', 'guide', 'how to', 'learn', 'course', 'lesson', 'explained', 
-    'basics', 'fundamentals', 'introduction', 'beginner', 'step by step'
-  ];
-  const titleMatches = educationalTitleKeywords.filter(keyword => title.includes(keyword)).length;
-  score += Math.min(titleMatches * 5, 30);
+  
+  // HEAVY BIAS: "how to" gets maximum points
+  if (title.includes('how to')) {
+    score += 40;
+  } else {
+    // Other quality keywords get reduced points
+    const qualityTitleKeywords = [
+      'tutorial', 'guide', 'learn', 'explained', 'tips', 'tricks', 
+      'demo', 'example', 'walkthrough', 'step by step', 'complete'
+    ];
+    const titleMatches = qualityTitleKeywords.filter(keyword => title.includes(keyword)).length;
+    score += Math.min(titleMatches * 3, 20); // Reduced from 5 to 3 points each
+  }
   
   // Description analysis (0-20 points)
   const description = video.description.toLowerCase();
-  const educationalDescKeywords = [
-    'learn', 'understand', 'master', 'practice', 'exercise', 'example', 
-    'demonstration', 'walkthrough', 'comprehensive', 'detailed'
+  
+  // HEAVY BIAS: "how to" in description gets bonus
+  if (description.includes('how to')) {
+    score += 15;
+  }
+  
+  const qualityDescKeywords = [
+    'learn', 'understand', 'master', 'practice', 'example', 
+    'demonstration', 'walkthrough', 'comprehensive', 'detailed', 'show'
   ];
-  const descMatches = educationalDescKeywords.filter(keyword => description.includes(keyword)).length;
-  score += Math.min(descMatches * 2, 20);
+  const descMatches = qualityDescKeywords.filter(keyword => description.includes(keyword)).length;
+  score += Math.min(descMatches * 1, 5); // Reduced points for non-"how to" content
   
   // Tags analysis (0-20 points) 
   const tags = video.tags || [];
-  const educationalTagKeywords = [
-    'education', 'tutorial', 'programming', 'coding', 'development', 
-    'course', 'training', 'certification', 'bootcamp', 'academy'
-  ];
-  const tagMatches = tags.filter(tag => 
-    educationalTagKeywords.some(keyword => tag.toLowerCase().includes(keyword))
-  ).length;
-  score += Math.min(tagMatches * 3, 20);
   
-  // Category check (0-15 points)
-  if (video.categoryId === '27') { // Education category
+  // HEAVY BIAS: "how to" in tags gets bonus
+  const hasHowToTag = tags.some(tag => tag.toLowerCase().includes('how to'));
+  if (hasHowToTag) {
     score += 15;
-  } else if (video.categoryId === '28') { // Science & Technology
-    score += 10;
   }
   
-  // Channel specialization (0-15 points)
+  const qualityTagKeywords = [
+    'tutorial', 'guide', 'tips', 'tricks', 'demo', 'example',
+    'learn', 'explained', 'walkthrough', 'complete'
+  ];
+  const tagMatches = tags.filter(tag => 
+    qualityTagKeywords.some(keyword => tag.toLowerCase().includes(keyword))
+  ).length;
+  score += Math.min(tagMatches * 1, 5); // Reduced points for non-"how to" content
+  
+  // Category check removed - no longer filtering by category
+  
+  // Channel quality indicators (0-20 points)
   if (channel) {
     const channelDesc = (channel.snippet?.description || '').toLowerCase();
-    if (channelDesc.includes('education') || channelDesc.includes('educational')) {
-      score += 15;
-    } else if (channelDesc.includes('tutorial')) {
+    if (channelDesc.includes('how to') || channelDesc.includes('tutorial')) {
+      score += 20;
+    } else if (channelDesc.includes('guide') || channelDesc.includes('tips')) {
       score += 10;
     }
   }
@@ -664,7 +697,7 @@ export function calculateComprehensiveQualityScore(
 }
 
 /**
- * Get adaptive quality thresholds based on content availability
+ * Get adaptive quality thresholds based on content availability and skill level
  */
 function getAdaptiveThresholds(
   videos: YouTubeVideo[],
@@ -673,28 +706,51 @@ function getAdaptiveThresholds(
     minViewCount: number;
     maxAgeInDays: number;
     targetResults: number;
+    skillLevel?: 'beginner' | 'intermediate' | 'advanced';
   }
 ) {
-  const { minQualityScore, minViewCount, maxAgeInDays, targetResults } = options;
+  const { minQualityScore, minViewCount, maxAgeInDays, targetResults, skillLevel } = options;
   
-  // If we have enough videos, use original thresholds
-  if (videos.length >= targetResults * 2) {
+  // Skill-level specific view count thresholds
+  let baseViewCount: number;
+  switch (skillLevel) {
+    case 'beginner':
+      baseViewCount = 1000000; // 1M+ for beginner (high quality, popular content)
+      break;
+    case 'intermediate':
+      baseViewCount = 100000;  // 100K+ for intermediate
+      break;
+    case 'advanced':
+      baseViewCount = 50000;   // 50K+ for advanced (more niche content)
+      break;
+    default:
+      baseViewCount = 100000;  // Default to 100K
+  }
+  
+  // Check if we have enough high-quality videos that meet original thresholds
+  const highQualityVideos = videos.filter(video => {
+    const viewCount = parseInt(video.statistics?.viewCount || '0');
+    return viewCount >= minViewCount;
+  });
+  
+  // If we have enough high-quality videos, use original thresholds
+  if (highQualityVideos.length >= targetResults) {
     return { minQualityScore, minViewCount, maxAgeInDays };
   }
   
-  // If we have some videos but not enough, relax thresholds moderately
+  // If we have some videos but not enough high-quality ones, relax thresholds moderately
   if (videos.length >= targetResults) {
     return {
-      minQualityScore: Math.max(5, minQualityScore * 0.7), // Reduce by 30%
-      minViewCount: Math.max(10, minViewCount * 0.5),      // Reduce by 50%
+      minQualityScore: Math.max(2, minQualityScore * 0.7), // Reduce by 30%
+      minViewCount: Math.max(baseViewCount * 0.5, baseViewCount * 0.5), // Reduce by 50% but respect skill level
       maxAgeInDays: maxAgeInDays * 1.5                     // Increase by 50%
     };
   }
   
   // If we have very few videos, use very relaxed thresholds
   return {
-    minQualityScore: Math.max(5, minQualityScore * 0.5),   // Reduce by 50%
-    minViewCount: Math.max(5, minViewCount * 0.3),         // Reduce by 70%
+    minQualityScore: Math.max(1, minQualityScore * 0.5),   // Reduce by 50%
+    minViewCount: Math.max(baseViewCount * 0.3, baseViewCount * 0.3), // Reduce by 70% but respect skill level
     maxAgeInDays: maxAgeInDays * 2                         // Double the age limit
   };
 }
@@ -740,16 +796,25 @@ export function filterVideosByQuality(
     minQualityScore,
     minViewCount,
     maxAgeInDays,
-    targetResults: maxResults
+    targetResults: maxResults,
+    skillLevel
   });
 
+  // Count high-quality videos for debugging
+  const highQualityCount = videos.filter(video => {
+    const viewCount = parseInt(video.statistics?.viewCount || '0');
+    return viewCount >= minViewCount;
+  }).length;
+  
   logSuccess('YouTube', 'Adaptive thresholds applied', {
     originalQualityScore: minQualityScore,
     adaptiveQualityScore: adaptiveThresholds.minQualityScore,
     originalViewCount: minViewCount,
     adaptiveViewCount: adaptiveThresholds.minViewCount,
     videosAvailable: videos.length,
-    targetResults: maxResults
+    highQualityVideos: highQualityCount,
+    targetResults: maxResults,
+    skillLevel: skillLevel || 'unknown'
   });
   
   return videos
@@ -1327,9 +1392,37 @@ Return ONLY the enhanced query, nothing else.`;
 // ============================================================================
 
 /**
+ * Check if YouTube API is enabled
+ */
+function isYouTubeAPIEnabled(): boolean {
+  if (!ENABLE_YOUTUBE_API) {
+    console.log('🔌 YouTube API is disabled - using browser search approach instead');
+    return false;
+  }
+  return true;
+}
+
+/**
  * Search for educational videos on YouTube
  */
 export async function searchYouTubeVideos(request: YouTubeSearchRequest): Promise<YouTubeSearchResponse> {
+  // Early return if API is disabled
+  if (!isYouTubeAPIEnabled()) {
+    return {
+      videos: [],
+      channels: [],
+      playlists: [],
+      totalResults: 0,
+      resultsPerPage: 0,
+      nextPageToken: undefined,
+      prevPageToken: undefined,
+      regionCode: 'US',
+      pageInfo: {
+        totalResults: 0,
+        resultsPerPage: 0
+      }
+    };
+  }
   const startTime = Date.now();
   
   try {
@@ -1874,6 +1967,226 @@ function generateFocusedSearchQueries(
 }
 
 /**
+ * Test function to get YouTube videos with minimal filtering
+ * Bypasses all quality filters except basic view count
+ */
+export async function testYouTubeVideoDiscovery(
+  topic: string,
+  skillLevel: 'beginner' | 'intermediate' | 'advanced' = 'beginner'
+): Promise<{ videos: YouTubeVideo[]; totalQueries: number; totalCost: number }> {
+  // Early return if API is disabled
+  if (!isYouTubeAPIEnabled()) {
+    console.log('🧪 TEST: YouTube API is disabled - using browser search approach instead');
+    return { videos: [], totalQueries: 0, totalCost: 0 };
+  }
+
+  console.log(`🧪 TEST: YouTube video discovery for "${topic}" (${skillLevel})`);
+  
+  const allVideos: YouTubeVideo[] = [];
+  let totalCost = 0;
+  
+  try {
+    // Generate educational-focused query to avoid Shorts
+    const cleanTopic = topic.replace(/^how to /i, ''); // Remove "how to" if already present
+    const testQuery = `${cleanTopic} tutorial course guide lesson`;
+    console.log(`🧪 TEST: Using educational query "${testQuery}"`);
+    
+    // Try different duration strategies to find the best content
+    const durationStrategies = [
+      { duration: 'medium', description: 'Medium videos (4-20 min)' },
+      { duration: 'long', description: 'Long videos (20+ min)' },
+      { duration: undefined, description: 'Any duration' }
+    ];
+    
+    for (const strategy of durationStrategies) {
+      console.log(`🧪 TEST: Trying ${strategy.description}`);
+      
+      // Build search parameters for this query - OPTIMIZED FOR REGULAR VIDEOS
+      const searchParams = new URLSearchParams({
+        part: 'snippet',
+        q: testQuery,
+        type: 'video',
+        maxResults: '25', // Get more results to filter from
+        key: process.env.YOUTUBE_API_KEY,
+        relevanceLanguage: 'en', // English only
+        regionCode: 'US', // US region for better educational content
+        videoEmbeddable: 'true',
+        videoSyndicated: 'true',
+        videoDefinition: 'high', // Prefer HD videos
+        order: 'viewCount' // Use view count to prioritize popular content
+        // REMOVED: videoLicense to get more content
+      });
+      
+            // Add duration filter if specified
+      if (strategy.duration) {
+        searchParams.append('videoDuration', strategy.duration);
+      }
+
+      // Make search request
+      const searchUrl = `${YOUTUBE_CONFIG.baseUrl}/search?${searchParams.toString()}`;
+      console.log(`🧪 TEST: Searching URL: ${searchUrl.replace(process.env.YOUTUBE_API_KEY!, '[API_KEY]')}`);
+      
+      const searchResponse = await fetch(searchUrl);
+      totalCost += 2; // Search costs 2 quota units
+
+      if (!searchResponse.ok) {
+        console.log(`🧪 TEST: Strategy ${strategy.description} failed, trying next...`);
+        continue;
+      }
+
+      const searchData = await searchResponse.json();
+      
+      if (!searchData.items || searchData.items.length === 0) {
+        console.log(`🧪 TEST: No videos found for ${strategy.description}`);
+        continue;
+      }
+
+      console.log(`🧪 TEST: Found ${searchData.items.length} videos with ${strategy.description}`);
+
+      // Get video IDs
+      const videoIds = searchData.items.map((item: any) => item.id.videoId);
+      
+      // Get detailed video information
+      const detailsParams = new URLSearchParams({
+        part: 'snippet,statistics,contentDetails',
+        id: videoIds.join(','),
+        key: process.env.YOUTUBE_API_KEY
+      });
+
+      const detailsUrl = `${YOUTUBE_CONFIG.baseUrl}/videos?${detailsParams.toString()}`;
+      const detailsResponse = await fetch(detailsUrl);
+      totalCost += 1; // Details costs 1 quota unit
+
+      if (!detailsResponse.ok) {
+        console.log(`🧪 TEST: Failed to get video details for ${strategy.description}`);
+        continue;
+      }
+
+      const detailsData = await detailsResponse.json();
+      
+      if (!detailsData.items || detailsData.items.length === 0) {
+        console.log(`🧪 TEST: No video details found for ${strategy.description}`);
+        continue;
+      }
+
+      console.log(`🧪 TEST: Retrieved details for ${detailsData.items.length} videos with ${strategy.description}`);
+
+      // Process videos directly without getVideoDetails() - SIMPLIFIED
+      const processedVideos = detailsData.items
+        .map((item: any) => ({
+          id: item.id,
+          title: item.snippet.title,
+          description: item.snippet.description,
+          thumbnail: {
+            default: item.snippet.thumbnails.default?.url || '',
+            medium: item.snippet.thumbnails.medium?.url || '',
+            high: item.snippet.thumbnails.high?.url || ''
+          },
+          channelTitle: item.snippet.channelTitle,
+          channelId: item.snippet.channelId,
+          publishedAt: item.snippet.publishedAt,
+          duration: item.contentDetails?.duration || undefined,
+          viewCount: parseInt(item.statistics?.viewCount || '0'),
+          likeCount: parseInt(item.statistics?.likeCount || '0'),
+          dislikeCount: parseInt(item.statistics?.dislikeCount || '0'),
+          commentCount: parseInt(item.statistics?.commentCount || '0'),
+          tags: item.snippet.tags || [],
+          categoryId: item.snippet.categoryId,
+          defaultLanguage: item.snippet.defaultLanguage,
+          defaultAudioLanguage: item.snippet.defaultAudioLanguage,
+          liveBroadcastContent: item.snippet.liveBroadcastContent,
+          contentRating: item.contentDetails?.contentRating,
+          projection: item.contentDetails?.projection || 'rectangular',
+          uploadStatus: item.status?.uploadStatus,
+          privacyStatus: item.status?.privacyStatus,
+          license: item.status?.license,
+          embeddable: item.status?.embeddable || false,
+          publicStatsViewable: item.status?.publicStatsViewable || false,
+          madeForKids: item.status?.madeForKids || false,
+          topicCategories: item.topicDetails?.topicCategories,
+          recordingLocation: item.recordingDetails?.locationDescription,
+          recordingDate: item.recordingDetails?.recordingDate,
+          defaultTab: item.brandingSettings?.channel?.defaultTab,
+          topicDetails: item.topicDetails,
+          player: item.player,
+          statistics: item.statistics,
+          status: item.status,
+          contentDetails: item.contentDetails,
+          snippet: item.snippet
+        } as YouTubeVideo))
+        .filter((video: YouTubeVideo) => {
+          // Enhanced Shorts detection
+          const title = video.title.toLowerCase();
+          const description = video.description?.toLowerCase() || '';
+          const duration = video.duration;
+          const durationMinutes = parseDurationToMinutes(duration);
+          const viewCount = parseInt(video.statistics?.viewCount || '0');
+          
+          const isShorts = title.includes('#shorts') || 
+                          title.includes('short') ||
+                          description.includes('#shorts') ||
+                          duration === 'PT0M0S' || // 0 seconds duration
+                          durationMinutes < 1 || // Less than 1 minute
+                          title.includes('tiktok') ||
+                          title.includes('reel') ||
+                          title.includes('viral') ||
+                          (durationMinutes >= 1 && durationMinutes <= 3 && title.includes('quick')) || // Quick tips under 3 minutes
+                          (durationMinutes >= 1 && durationMinutes <= 3 && (title.includes('tip') || title.includes('hack'))) || // Tips/hacks under 3 minutes
+                          (durationMinutes >= 1 && durationMinutes <= 5 && viewCount > 10000000); // High-view videos under 5 minutes (likely viral)
+          
+          // Only filter by view count and age
+          const publishedDate = new Date(video.publishedAt);
+          const daysSincePublished = (Date.now() - publishedDate.getTime()) / (1000 * 60 * 60 * 24);
+          
+          const passesViewCount = viewCount >= TEST_CONFIG.minViewCount;
+          const passesAge = daysSincePublished <= TEST_CONFIG.maxAgeInDays;
+          const passesShortsFilter = !isShorts;
+          
+          console.log(`🧪 TEST: Video "${video.title}" - ${formatViewCount(viewCount)} views, ${Math.round(daysSincePublished)} days old, ${durationMinutes}min, ${isShorts ? 'SHORTS' : 'Regular'} - View: ${passesViewCount}, Age: ${passesAge}, NotShorts: ${passesShortsFilter}`);
+          
+          return passesViewCount && passesAge && passesShortsFilter;
+        });
+
+      // Add to all videos
+      allVideos.push(...processedVideos);
+      
+      // If we found enough good videos, stop searching
+      if (allVideos.length >= TEST_CONFIG.maxResults) {
+        console.log(`🧪 TEST: Found enough videos (${allVideos.length}), stopping search`);
+        break;
+      }
+    }
+
+    // Take the best videos from all strategies
+    const finalVideos = allVideos
+      .sort((a, b) => parseInt(b.statistics?.viewCount || '0') - parseInt(a.statistics?.viewCount || '0'))
+      .slice(0, TEST_CONFIG.maxResults);
+
+    console.log(`🧪 TEST: Final result: ${finalVideos.length} videos from all strategies`);
+    
+    // Log each video for debugging
+    finalVideos.forEach((video, index) => {
+      const viewCount = parseInt(video.statistics?.viewCount || '0');
+      console.log(`🧪 TEST: ${index + 1}. "${video.title}" - ${formatViewCount(viewCount)} views - ${video.channelTitle}`);
+    });
+
+    return {
+      videos: finalVideos,
+      totalQueries: durationStrategies.length,
+      totalCost
+    };
+
+  } catch (error) {
+    console.error(`🧪 TEST: Error in YouTube video discovery:`, error);
+    return {
+      videos: [],
+      totalQueries: 1,
+      totalCost
+    };
+  }
+}
+
+/**
  * Search YouTube with single query to get all requested videos
  */
 async function searchYouTubeWithSingleQuery(
@@ -1902,8 +2215,8 @@ async function searchYouTubeWithSingleQuery(
       videoEmbeddable: 'true',
       videoSyndicated: 'true',
       videoLicense: 'creativeCommon',
-      order: 'relevance', // Use relevance for better content matching
-      videoCategoryId: '27', // Education category
+      order: 'viewCount', // Use view count to prioritize popular content
+      // Removed videoCategoryId filter to allow content from any category
     });
 
     // Make search request
@@ -1978,10 +2291,10 @@ async function searchYouTubeWithMultipleQueries(
         relevanceLanguage: 'en',
         regionCode: 'US',
         videoEmbeddable: 'true',
-        videoSyndicated: 'true',
-        videoLicense: 'creativeCommon',
-        order: 'relevance',
-        videoCategoryId: '27', // Education category
+                  videoSyndicated: 'true',
+          videoLicense: 'creativeCommon',
+          order: 'viewCount',
+          // Removed videoCategoryId filter to allow content from any category
       });
 
       // Make search request
@@ -2050,3 +2363,399 @@ export {
   generateSearchQueryVariations,
   detectTopicFromQuery
 };
+
+/**
+ * Comprehensive test to identify YouTube Data API limitations
+ * Compares API results with expected regular YouTube search behavior
+ */
+export async function debugYouTubeAPILimitations(
+  topic: string
+): Promise<{ apiResults: any; analysis: any; recommendations: string[] }> {
+  // Early return if API is disabled
+  if (!isYouTubeAPIEnabled()) {
+    console.log('🔍 DEBUG: YouTube API is disabled - using browser search approach instead');
+    return {
+      apiResults: [],
+      analysis: {
+        searchQueries: [],
+        apiResults: [],
+        potentialIssues: ['YouTube API is disabled'],
+        recommendations: ['Use browser search approach instead']
+      },
+      recommendations: ['YouTube API is disabled - use browser search instead']
+    };
+  }
+
+  console.log(`🔍 DEBUG: Analyzing YouTube API limitations for "${topic}"`);
+  
+  const analysis = {
+    searchQueries: [] as string[],
+    apiResults: [] as any[],
+    potentialIssues: [] as string[],
+    recommendations: [] as string[]
+  };
+
+  // Test 1: Basic search without restrictions - GET FULL VIDEO DETAILS
+  console.log(`🔍 DEBUG: Test 1 - Basic search with full video details`);
+  const basicQuery = `how to ${topic}`;
+  analysis.searchQueries.push(basicQuery);
+  
+  const basicParams = new URLSearchParams({
+    part: 'snippet',
+    q: basicQuery,
+    type: 'video',
+    maxResults: '10',
+    key: process.env.YOUTUBE_API_KEY!,
+    order: 'viewCount'
+  });
+
+  try {
+    const basicResponse = await fetch(`${YOUTUBE_CONFIG.baseUrl}/search?${basicParams.toString()}`);
+    const basicData = await basicResponse.json();
+    
+    if (basicData.items) {
+      console.log(`🔍 DEBUG: Basic search found ${basicData.items.length} videos`);
+      
+      // Get full video details including view counts
+      const videoIds = basicData.items.map((item: any) => item.id.videoId);
+      const detailsParams = new URLSearchParams({
+        part: 'snippet,statistics,contentDetails',
+        id: videoIds.join(','),
+        key: process.env.YOUTUBE_API_KEY!
+      });
+      
+      const detailsResponse = await fetch(`${YOUTUBE_CONFIG.baseUrl}/videos?${detailsParams.toString()}`);
+      const detailsData = await detailsResponse.json();
+      
+      if (detailsData.items) {
+        const videosWithStats = detailsData.items.map((item: any) => {
+          const duration = item.contentDetails?.duration;
+          const durationMinutes = parseDurationToMinutes(duration);
+          const isShorts = item.snippet.title.toLowerCase().includes('#shorts') || 
+                          item.snippet.title.toLowerCase().includes('short') ||
+                          item.snippet.description?.toLowerCase().includes('#shorts') ||
+                          duration === 'PT0M0S' || 
+                          durationMinutes < 1;
+          
+          return {
+            title: item.snippet.title,
+            channel: item.snippet.channelTitle,
+            publishedAt: item.snippet.publishedAt,
+            viewCount: parseInt(item.statistics?.viewCount || '0'),
+            likeCount: parseInt(item.statistics?.likeCount || '0'),
+            commentCount: parseInt(item.statistics?.commentCount || '0'),
+            duration: duration,
+            durationMinutes: durationMinutes,
+            isShorts: isShorts
+          };
+        });
+        
+        // Filter out Shorts for analysis
+        const regularVideos = videosWithStats.filter(v => !v.isShorts);
+        const shortsVideos = videosWithStats.filter(v => v.isShorts);
+        
+        console.log(`🔍 DEBUG: Found ${regularVideos.length} regular videos and ${shortsVideos.length} Shorts`);
+        console.log(`🔍 DEBUG: Regular video view counts:`, regularVideos.map(v => `${v.viewCount.toLocaleString()} views`));
+        console.log(`🔍 DEBUG: Shorts view counts:`, shortsVideos.map(v => `${v.viewCount.toLocaleString()} views`));
+        
+        if (regularVideos.length > 0) {
+          const maxRegularViews = Math.max(...regularVideos.map(v => v.viewCount));
+          console.log(`🔍 DEBUG: Highest regular video: ${maxRegularViews.toLocaleString()} views`);
+        }
+        
+        analysis.apiResults.push({
+          test: 'Basic Search with Details',
+          query: basicQuery,
+          results: basicData.items.length,
+          videos: videosWithStats,
+          maxViews: Math.max(...videosWithStats.map(v => v.viewCount)),
+          minViews: Math.min(...videosWithStats.map(v => v.viewCount))
+        });
+      }
+    }
+  } catch (error) {
+    analysis.potentialIssues.push(`Basic search failed: ${error}`);
+  }
+
+  // Test 2: Search with current restrictions
+  console.log(`🔍 DEBUG: Test 2 - Search with current restrictions`);
+  const restrictedParams = new URLSearchParams({
+    part: 'snippet',
+    q: basicQuery,
+    type: 'video',
+    maxResults: '10',
+    key: process.env.YOUTUBE_API_KEY!,
+    relevanceLanguage: 'en',
+    regionCode: 'US',
+    videoEmbeddable: 'true',
+    videoSyndicated: 'true',
+    videoLicense: 'creativeCommon',
+    order: 'viewCount'
+  });
+
+  try {
+    const restrictedResponse = await fetch(`${YOUTUBE_CONFIG.baseUrl}/search?${restrictedParams.toString()}`);
+    const restrictedData = await restrictedResponse.json();
+    
+    if (restrictedData.items) {
+      console.log(`🔍 DEBUG: Restricted search found ${restrictedData.items.length} videos`);
+      analysis.apiResults.push({
+        test: 'Restricted Search',
+        query: basicQuery,
+        results: restrictedData.items.length,
+        videos: restrictedData.items.map((item: any) => ({
+          title: item.snippet.title,
+          channel: item.snippet.channelTitle,
+          publishedAt: item.snippet.publishedAt
+        }))
+      });
+    }
+  } catch (error) {
+    analysis.potentialIssues.push(`Restricted search failed: ${error}`);
+  }
+
+  // Test 3: Search with different order parameters
+  console.log(`🔍 DEBUG: Test 3 - Search with different order parameters`);
+  const orders = ['relevance', 'viewCount', 'rating', 'date'];
+  
+  for (const order of orders) {
+    const orderParams = new URLSearchParams({
+      part: 'snippet',
+      q: basicQuery,
+      type: 'video',
+      maxResults: '5',
+      key: process.env.YOUTUBE_API_KEY!,
+      order: order
+    });
+
+    try {
+      const orderResponse = await fetch(`${YOUTUBE_CONFIG.baseUrl}/search?${orderParams.toString()}`);
+      const orderData = await orderResponse.json();
+      
+      if (orderData.items) {
+        console.log(`🔍 DEBUG: ${order} order found ${orderData.items.length} videos`);
+        analysis.apiResults.push({
+          test: `${order} Order`,
+          query: basicQuery,
+          results: orderData.items.length,
+          videos: orderData.items.map((item: any) => ({
+            title: item.snippet.title,
+            channel: item.snippet.channelTitle,
+            publishedAt: item.snippet.publishedAt
+          }))
+        });
+      }
+    } catch (error) {
+      analysis.potentialIssues.push(`${order} order search failed: ${error}`);
+    }
+  }
+
+  // Test 4: Search without videoLicense restriction
+  console.log(`🔍 DEBUG: Test 4 - Search without videoLicense restriction`);
+  const noLicenseParams = new URLSearchParams({
+    part: 'snippet',
+    q: basicQuery,
+    type: 'video',
+    maxResults: '10',
+    key: process.env.YOUTUBE_API_KEY!,
+    order: 'viewCount'
+    // Removed videoLicense: 'creativeCommon'
+  });
+
+  try {
+    const noLicenseResponse = await fetch(`${YOUTUBE_CONFIG.baseUrl}/search?${noLicenseParams.toString()}`);
+    const noLicenseData = await noLicenseResponse.json();
+    
+    if (noLicenseData.items) {
+      console.log(`🔍 DEBUG: No license restriction found ${noLicenseData.items.length} videos`);
+      analysis.apiResults.push({
+        test: 'No License Restriction',
+        query: basicQuery,
+        results: noLicenseData.items.length,
+        videos: noLicenseData.items.map((item: any) => ({
+          title: item.snippet.title,
+          channel: item.snippet.channelTitle,
+          publishedAt: item.snippet.publishedAt
+        }))
+      });
+    }
+  } catch (error) {
+    analysis.potentialIssues.push(`No license search failed: ${error}`);
+  }
+
+  // Test 5: Search with broader region
+  console.log(`🔍 DEBUG: Test 5 - Search with broader region`);
+  const globalParams = new URLSearchParams({
+    part: 'snippet',
+    q: basicQuery,
+    type: 'video',
+    maxResults: '10',
+    key: process.env.YOUTUBE_API_KEY!,
+    order: 'viewCount'
+    // Removed regionCode: 'US'
+  });
+
+  try {
+    const globalResponse = await fetch(`${YOUTUBE_CONFIG.baseUrl}/search?${globalParams.toString()}`);
+    const globalData = await globalResponse.json();
+    
+    if (globalData.items) {
+      console.log(`🔍 DEBUG: Global search found ${globalData.items.length} videos`);
+      analysis.apiResults.push({
+        test: 'Global Search',
+        query: basicQuery,
+        results: globalData.items.length,
+        videos: globalData.items.map((item: any) => ({
+          title: item.snippet.title,
+          channel: item.snippet.channelTitle,
+          publishedAt: item.snippet.publishedAt
+        }))
+      });
+    }
+  } catch (error) {
+    analysis.potentialIssues.push(`Global search failed: ${error}`);
+  }
+
+  // Test 6: Search for the specific high-view video we expect
+  console.log(`🔍 DEBUG: Test 6 - Search for specific high-view content`);
+  const specificQueries = [
+    'how to read faster 4 million views',
+    'speed reading tutorial high views',
+    'read faster technique popular',
+    'speed reading course most viewed'
+  ];
+  
+  for (const specificQuery of specificQueries) {
+    const specificParams = new URLSearchParams({
+      part: 'snippet',
+      q: specificQuery,
+      type: 'video',
+      maxResults: '5',
+      key: process.env.YOUTUBE_API_KEY!,
+      order: 'viewCount'
+    });
+
+    try {
+      const specificResponse = await fetch(`${YOUTUBE_CONFIG.baseUrl}/search?${specificParams.toString()}`);
+      const specificData = await specificResponse.json();
+      
+      if (specificData.items && specificData.items.length > 0) {
+        console.log(`🔍 DEBUG: Specific query "${specificQuery}" found ${specificData.items.length} videos`);
+        
+        // Get video details
+        const videoIds = specificData.items.map((item: any) => item.id.videoId);
+        const detailsParams = new URLSearchParams({
+          part: 'snippet,statistics',
+          id: videoIds.join(','),
+          key: process.env.YOUTUBE_API_KEY!
+        });
+        
+        const detailsResponse = await fetch(`${YOUTUBE_CONFIG.baseUrl}/videos?${detailsParams.toString()}`);
+        const detailsData = await detailsResponse.json();
+        
+        if (detailsData.items) {
+          const videosWithStats = detailsData.items.map((item: any) => ({
+            title: item.snippet.title,
+            channel: item.snippet.channelTitle,
+            viewCount: parseInt(item.statistics?.viewCount || '0')
+          }));
+          
+          const maxViews = Math.max(...videosWithStats.map(v => v.viewCount));
+          console.log(`🔍 DEBUG: "${specificQuery}" - Highest view count: ${maxViews.toLocaleString()}`);
+          
+          if (maxViews >= 4000000) {
+            analysis.potentialIssues.push(`Found high-view video (${maxViews.toLocaleString()} views) with query "${specificQuery}"`);
+          }
+        }
+      }
+    } catch (error) {
+      console.log(`🔍 DEBUG: Specific query "${specificQuery}" failed: ${error}`);
+    }
+  }
+
+  // Analyze results and generate recommendations
+  console.log(`🔍 DEBUG: Analyzing results...`);
+  
+  // Check if restrictions are reducing results
+  const basicResults = analysis.apiResults.find(r => r.test === 'Basic Search')?.results || 0;
+  const restrictedResults = analysis.apiResults.find(r => r.test === 'Restricted Search')?.results || 0;
+  
+  if (restrictedResults < basicResults) {
+    analysis.potentialIssues.push(`Restrictions reduced results from ${basicResults} to ${restrictedResults}`);
+    analysis.recommendations.push('Consider removing some restrictions to get more results');
+  }
+
+  // Check if videoLicense restriction is problematic
+  const noLicenseResults = analysis.apiResults.find(r => r.test === 'No License Restriction')?.results || 0;
+  if (noLicenseResults > restrictedResults) {
+    analysis.potentialIssues.push(`videoLicense restriction reduced results from ${noLicenseResults} to ${restrictedResults}`);
+    analysis.recommendations.push('Remove videoLicense: "creativeCommon" restriction - it may be too limiting');
+  }
+
+  // Check if region restriction is problematic
+  const globalResults = analysis.apiResults.find(r => r.test === 'Global Search')?.results || 0;
+  if (globalResults > restrictedResults) {
+    analysis.potentialIssues.push(`regionCode restriction reduced results from ${globalResults} to ${restrictedResults}`);
+    analysis.recommendations.push('Remove regionCode: "US" restriction - it may be excluding good content');
+  }
+
+  // Check if order parameter affects results
+  const viewCountResults = analysis.apiResults.find(r => r.test === 'viewCount Order')?.results || 0;
+  const relevanceResults = analysis.apiResults.find(r => r.test === 'relevance Order')?.results || 0;
+  
+  if (viewCountResults !== relevanceResults) {
+    analysis.potentialIssues.push(`Order parameter affects results: viewCount=${viewCountResults}, relevance=${relevanceResults}`);
+    analysis.recommendations.push('Consider using "relevance" order instead of "viewCount" for better content discovery');
+  }
+
+  // Analyze the actual view counts we're getting
+  const basicResult = analysis.apiResults.find(r => r.test === 'Basic Search with Details');
+  if (basicResult) {
+    console.log(`🔍 DEBUG: Highest view count found: ${basicResult.maxViews.toLocaleString()}`);
+    console.log(`🔍 DEBUG: Lowest view count found: ${basicResult.minViews.toLocaleString()}`);
+    
+    // Filter out Shorts for analysis
+    const regularVideos = basicResult.videos.filter(v => !v.isShorts);
+    const shortsVideos = basicResult.videos.filter(v => v.isShorts);
+    
+    if (regularVideos.length > 0) {
+      const maxRegularViews = Math.max(...regularVideos.map(v => v.viewCount));
+      console.log(`🔍 DEBUG: Highest regular video: ${maxRegularViews.toLocaleString()} views`);
+      
+      if (maxRegularViews < 1000000) {
+        analysis.potentialIssues.push(`Highest regular video (${maxRegularViews.toLocaleString()}) is below 1M - API may not be finding the most popular videos`);
+        analysis.recommendations.push('The YouTube Data API may not return the same high-view videos as regular YouTube search');
+      }
+      
+      // Check if we're getting the expected 4M+ view video
+      const hasHighViewVideo = regularVideos.some(v => v.viewCount >= 4000000);
+      if (!hasHighViewVideo) {
+        analysis.potentialIssues.push('No regular videos with 4M+ views found - the expected "how to read faster" video with 4M views is missing');
+        analysis.recommendations.push('YouTube Data API search results differ significantly from regular YouTube search');
+      }
+    }
+    
+    if (shortsVideos.length > 0) {
+      const maxShortsViews = Math.max(...shortsVideos.map(v => v.viewCount));
+      console.log(`🔍 DEBUG: Highest Shorts video: ${maxShortsViews.toLocaleString()} views`);
+      analysis.potentialIssues.push(`Found ${shortsVideos.length} Shorts videos with up to ${maxShortsViews.toLocaleString()} views - these should be filtered out`);
+      analysis.recommendations.push('Filter out YouTube Shorts to get better quality educational content');
+    }
+  }
+
+  // General recommendations
+  analysis.recommendations.push('YouTube Data API may have different results than regular YouTube search');
+  analysis.recommendations.push('API results are influenced by region, language, and content restrictions');
+  analysis.recommendations.push('Consider testing with fewer restrictions to see if we can find better content');
+  analysis.recommendations.push('The API may not return the same "most viewed" results as regular YouTube search');
+
+  console.log(`🔍 DEBUG: Analysis complete`);
+  console.log(`🔍 DEBUG: Potential issues:`, analysis.potentialIssues);
+  console.log(`🔍 DEBUG: Recommendations:`, analysis.recommendations);
+
+  return {
+    apiResults: analysis.apiResults,
+    analysis: analysis,
+    recommendations: analysis.recommendations
+  };
+}

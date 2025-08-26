@@ -1250,22 +1250,21 @@ Topic: "${topic}"
 Skill Level: ${skillLevel}${contextInfo}
 
 Requirements:
-- Generate ${maxQueries} focused queries for YouTube and Articles
-- Queries should be specific and educational-focused (3-8 words max)
-- Avoid generic terms like "how to learn" or "tutorial"
-- For ${skillLevel} level, use appropriate terminology
+- Generate ${maxQueries} simple, effective queries for YouTube and Articles
+- YouTube queries should be in "how to {topic}" format for maximum results
+- Keep queries short and sweet (2-5 words max)
+- Focus on the core topic without over-complicating
 
-- CRITICAL: Disambiguate ambiguous topics to ensure ALL content is on the same specific skill
+- CRITICAL: Use simple, popular search patterns that work well on YouTube
   Examples: 
-  - "juggling" → "3 ball juggling" (NOT soccer juggling, NOT contact juggling)
-  - "photography" → "digital photography" (NOT film photography, NOT phone photography)
-  - "cooking" → "home cooking" (NOT professional cooking, NOT baking)
-  - "dancing" → "hip hop dancing" (NOT ballet, NOT salsa)
-  - "guitar" → "acoustic guitar" (NOT electric guitar, NOT bass guitar)
-  - "painting" → "watercolor painting" (NOT oil painting, NOT digital painting)
+  - "typing faster" → "how to type faster", "how to type faster beginner", "how to type faster advanced"
+  - "juggling" → "how to juggle", "how to juggle 3 balls", "how to juggle beginner"
+  - "photography" → "how to take photos", "how to take photos beginner", "how to take photos advanced"
+  - "cooking" → "how to cook", "how to cook beginner", "how to cook advanced"
   
-- ALWAYS choose the MOST COMMON interpretation of the skill and stick to it consistently
-- NEVER mix different types of the same skill category in the same roadmap
+- ALWAYS start with "how to {topic}" for YouTube queries
+- Add skill level (beginner/advanced) as a second query variation
+- Keep it simple - don't over-engineer the queries
 ${milestoneContext ? `
 - Use milestone context to create highly specific queries that match the learning objectives` : ''}
 
@@ -1289,10 +1288,10 @@ Return a JSON object with this exact structure:
   }
 }
 
-Example for "juggling" (beginner):
+Example for "typing faster" (beginner):
 {
-  "youtubeQueries": ["3 ball juggling tutorial", "basic juggling patterns", "learn to juggle balls"],
-  "articleQueries": ["3 ball juggling guide", "juggling basics tutorial", "ball juggling techniques"],
+  "youtubeQueries": ["how to type faster", "how to type faster beginner", "how to type faster tutorial"],
+  "articleQueries": ["typing speed improvement", "faster typing techniques", "typing speed guide"],
 
   "detectedTopic": "sports",
   "reasoning": "Chose 3 ball juggling (the most common form) specifically to avoid confusion with soccer juggling, contact juggling, or other variations. All queries focus on traditional ball juggling.",

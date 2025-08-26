@@ -9,6 +9,8 @@ interface VideoPlayerProps {
 }
 
 export function VideoPlayer({ videoId, title }: VideoPlayerProps) {
+  const [hasError, setHasError] = useState(false);
+  
   // Extract video ID from various YouTube URL formats
   const getVideoId = (url: string) => {
     if (!url || typeof url !== 'string') {
@@ -22,6 +24,51 @@ export function VideoPlayer({ videoId, title }: VideoPlayerProps) {
   const extractedVideoId = getVideoId(videoId);
   const embedUrl = `https://www.youtube.com/embed/${extractedVideoId}?rel=0&modestbranding=1`;
 
+  // Check if video ID is valid
+  const isValidVideoId = extractedVideoId && extractedVideoId.length === 11;
+
+  if (!isValidVideoId || hasError) {
+    return (
+      <div className="w-full bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+          <div className="absolute top-0 left-0 w-full h-full bg-gray-100 flex items-center justify-center">
+            <div className="text-center p-6">
+              <div className="text-red-500 text-4xl mb-2">⚠️</div>
+              <h4 className="font-medium text-gray-900 mb-2">Video Not Available</h4>
+              <p className="text-sm text-gray-600 mb-3">
+                {!isValidVideoId 
+                  ? "Invalid video ID or URL format" 
+                  : "This video could not be loaded"
+                }
+              </p>
+              <a
+                href={`https://www.youtube.com/results?search_query=${encodeURIComponent(title)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800"
+              >
+                <ExternalLink className="h-3 w-3 mr-1" />
+                Search for similar videos
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        {/* Video Info */}
+        <div className="p-3">
+          <div className="flex items-center justify-between">
+            <h4 className="font-medium text-sm text-gray-900 line-clamp-2 flex-1 pr-2">
+              {title}
+            </h4>
+            <span className="text-xs text-red-500 font-medium">
+              ⚠️ Not Available
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full bg-white rounded-lg shadow-lg overflow-hidden">
       {/* Video Player */}
@@ -33,6 +80,7 @@ export function VideoPlayer({ videoId, title }: VideoPlayerProps) {
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
           title={title}
+          onError={() => setHasError(true)}
         />
       </div>
       

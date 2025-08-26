@@ -99,7 +99,7 @@ export function SkillCard({ skill, index }: SkillCardProps) {
             <Link href={`/skill/${encodeURIComponent(skill.name)}`}>
               <Button 
                 size="sm" 
-                className="btn-gray-primary group-hover:bg-gray-600 transition-colors"
+                className="btn-primary group-hover:bg-gray-600 transition-colors"
               >
                 Continue
                 <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
